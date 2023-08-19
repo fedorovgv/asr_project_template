@@ -1,0 +1,88 @@
+
+name: one_batch_test_config
+version: one_batch_test
+
+trainer:
+  device: cpu
+  epochs: 50
+  save_dir: /Users/grigoryfedorov/Desktop/asr_project_template/saved/
+  save_period: 5
+  verbosity: 2
+  monitor: "on"
+  monitor_metric: val_loss
+  monitor_mode: min
+  early_stop: 10
+  visualize: wandb
+  wandb_project: asr_project
+  len_epoch: 20
+  log_step: 5
+  grad_norm_clip: 1.0
+
+model:
+
+  architecture:
+    target_cls: asr.model.BaselineModel
+    n_class: 28
+    n_feats: 128
+    fc_hidden: 512
+
+  text_encoder:
+    target_cls: asr.text_encoder.CTCCharTextEncoder
+    alphabet: [
+      'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ',
+    ]
+
+  train_dataloader:
+    batch_size: 8
+    num_workers: 1
+    shuffle: True
+    pin_memory: True
+    drop_last: False
+
+    dataset:
+      target_cls: asr.base.BaseDataset
+
+      index_path: /Users/grigoryfedorov/Desktop/asr_project_template/test_data/index.tsv
+      max_audio_length: 20.0
+      max_text_length: 200
+      log_spec: True
+
+      wave_aug: null
+      spec_aug: null
+      wave2spec:
+        target_cls: torchaudio.transforms.MelSpectrogram
+
+  val_dataloader:
+    batch_size: 8
+    num_workers: 1
+    shuffle: False
+    pin_memory: True
+    drop_last: False
+
+    dataset:
+      target_cls: asr.base.BaseDataset
+      index_path: /Users/grigoryfedorov/Desktop/asr_project_template/test_data/index.tsv
+      max_audio_length: 20.0
+      max_text_length: 200
+  
+      wave2spec:
+        target_cls: torchaudio.transforms.MelSpectrogram
+
+  loss:
+    target_cls: asr.loss.CTCLoss
+
+  optimizer:
+    target_cls: torch.optim.Adam
+    lr: 3e-4
+
+  lr_scheduler:
+    target_cls: torch.optim.lr_scheduler.OneCycleLR
+    steps_per_epoch: 100
+    epochs: 50
+    anneal_strategy: cos
+    max_lr: 3e-4
+    pct_start: 0.2
+
+  metrics:
+    - target_cls: asr.metric.WER
