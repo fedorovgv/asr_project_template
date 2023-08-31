@@ -1,30 +1,30 @@
 
-name: one_batch_test_config
-version: one_batch_test
+name: one_batch_test_cpu_config
+
+version: one_batch_test_cpu
 
 trainer:
-  device: cpu
-  epochs: 50
-  save_dir: /Users/grigoryfedorov/Desktop/asr_project_template/saved/
-  save_period: 5
-  verbosity: 2
-  monitor: "on"
-  monitor_metric: val_loss
-  monitor_mode: min
-  early_stop: 10
-  visualize: wandb
-  wandb_project: asr_project
-  len_epoch: 20
-  log_step: 5
-  grad_norm_clip: 1.0
+  val_check_interval: 0.1
+  check_val_every_n_epoch: &log_every_n_steps 1
+  log_every_n_steps: 5
+  precision: 32
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  accelerator: cpu
+  max_steps: 1000
 
 model:
+  log_every_n_steps: *log_every_n_steps
 
-  architecture:
-    target_cls: asr.model.BaselineModel
+  encoder:
+    target_cls: asr.submodules.encoder.BaseLineEncoder
+    n_mels: 64
+    fc_hidden: &fc_hidden 512
+
+  decoder:
+    target_cls: asr.submodules.decoder.BaseLineDecoder
+    fc_hidden: *fc_hidden
     n_class: 28
-    n_feats: 128
-    fc_hidden: 512
 
   text_encoder:
     target_cls: asr.text_encoder.CTCCharTextEncoder
@@ -41,17 +41,18 @@ model:
     drop_last: False
 
     dataset:
-      target_cls: asr.base.BaseDataset
-
-      index_path: /Users/grigoryfedorov/Desktop/asr_project_template/test_data/index.tsv
+      target_cls: asr.data.ASRDataset
+      manifest_path: /Users/grigoryfedorov/Desktop/asr_project_template/test_data/index.tsv
       max_audio_length: 20.0
       max_text_length: 200
       log_spec: True
-
+    
       wave_aug: null
       spec_aug: null
-      wave2spec:
+  
+      wave2spec: &wave2spec
         target_cls: torchaudio.transforms.MelSpectrogram
+        n_mels: 64
 
   val_dataloader:
     batch_size: 8
@@ -61,18 +62,17 @@ model:
     drop_last: False
 
     dataset:
-      target_cls: asr.base.BaseDataset
-      index_path: /Users/grigoryfedorov/Desktop/asr_project_template/test_data/index.tsv
+      target_cls: asr.data.ASRDataset
+      manifest_path: /Users/grigoryfedorov/Desktop/asr_project_template/test_data/index.tsv
       max_audio_length: 20.0
       max_text_length: 200
   
-      wave2spec:
-        target_cls: torchaudio.transforms.MelSpectrogram
+      wave2spec: *wave2spec
 
   loss:
-    target_cls: asr.loss.CTCLoss
+    target_cls: torch.nn.CTCLoss
 
-  optimizer:
+  optim:
     target_cls: torch.optim.Adam
     lr: 3e-4
 
@@ -83,6 +83,3 @@ model:
     anneal_strategy: cos
     max_lr: 3e-4
     pct_start: 0.2
-
-  metrics:
-    - target_cls: asr.metric.WER

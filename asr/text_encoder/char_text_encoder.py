@@ -6,10 +6,10 @@ from typing import List, Union, Optional
 import numpy as np
 from torch import Tensor
 
-from asr.base.base_text_encoder import BaseTextEncoder
+from .base_text_encoder import CoreTextEncoder
 
 
-class CharTextEncoder(BaseTextEncoder):
+class CharTextEncoder(CoreTextEncoder):
 
     def __init__(self, alphabet: Optional[List[str]] = None):
         if alphabet is None:

@@ -1,22 +1,23 @@
 import re
-from typing import List, Union
+import typing as tp
 
 import numpy as np
 from torch import Tensor
-from omegaconf import OmegaConf, DictConfig
 
-from .serialization import Serialization
+from asr.core.serialization import Serialization
 
 
-class BaseTextEncoder(Serialization):
+class CoreTextEncoder(Serialization):
     """
     Base class for all encoders.
     """
+    def __init__(self, *args, **kwargs) -> None:
+        super().__ini__(*args, **kwargs)
 
     def encode(self, text) -> Tensor:
         raise NotImplementedError()
 
-    def decode(self, vector: Union[Tensor, np.ndarray, List[int]]):
+    def decode(self, vector: tp.Union[Tensor, np.ndarray, tp.List[int]]):
         raise NotImplementedError()
 
     def __len__(self):

@@ -1,5 +1,5 @@
-from asr.model.baseline_model import BaselineModel
+from asr.model.encoder_decoder import EncDecModel
 
 __all__ = [
-    "BaselineModel",
+    "EncDecModel",
 ]

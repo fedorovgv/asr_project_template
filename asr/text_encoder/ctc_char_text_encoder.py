@@ -35,10 +35,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         return "".join(decoded_output)
 
     def ctc_beam_search(
-            self,
-            probs: torch.tensor,
-            probs_length: int,
-            beam_size: int = 100,
+            self, probs: torch.tensor, probs_length: int, beam_size: int = 100,
     ) -> List:
         """
         Performs beam search and returns a list of pairs (hypothesis, hypothesis probability).
@@ -58,7 +55,9 @@ class CTCCharTextEncoder(CharTextEncoder):
             paths = self._extend_merge(next_char_probs, paths, self.ind2char)
             paths = dict(list(sorted(paths.items(), key=lambda x: x[1]))[-beam_size:])
 
-        return [(prefix.strip(), score) for (prefix, _), score in sorted(paths.items(), key=lambda x: -x[1])]
+        return [
+            (prefix.strip(), score) for (prefix, _), score in sorted(paths.items(), key=lambda x: -x[1])
+        ]
 
     def _extend_merge(self, next_char_probs, paths, ind2char):
         new_paths = defaultdict(float)
