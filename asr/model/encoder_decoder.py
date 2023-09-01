@@ -15,6 +15,7 @@ class EncDecModel(CoreModule):
     def __init__(self, cfg: DictConfig, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._cfg = cfg
+
         self.log_every_n_steps = cfg.get('log_every_n_steps', 1)
 
         self.encoder = CoreEncoder.from_config(cfg.encoder)
@@ -55,7 +56,7 @@ class EncDecModel(CoreModule):
 
         if (batch_nb + 1) % self.log_every_n_steps == 0:
 
-            for logits, logit_len, target_text in zip(preds.numpy(), features_len.numpy(), texts):
+            for (logits, logit_len, target_text) in zip(preds.numpy(), features_len.numpy(), texts):
                 if hasattr(self.text_encoder, "ctc_decode"):
                     pred_text = self.text_encoder.ctc_decode(logits[:logit_len])
                 else:

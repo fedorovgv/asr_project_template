@@ -29,5 +29,6 @@ class BaseLineDecoder(CoreDecoder):
     def forward(self, encoded_features: torch.tensor) -> torch.tensor:
 
         logits = self.proj(encoded_features)
+        logprobs = nn.functional.log_softmax(logits, dim=-2)
 
-        return logits
+        return logprobs
