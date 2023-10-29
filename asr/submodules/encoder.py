@@ -23,7 +23,6 @@ class BaseLineEncoder(CoreEncoder):
         super().__init__(*args, **kwargs)
 
         self.encoder = nn.Sequential(
-            # people say it can aproximate any function...
             nn.Linear(in_features=n_mels, out_features=fc_hidden),
             nn.ReLU(),
             nn.Linear(in_features=fc_hidden, out_features=fc_hidden),
