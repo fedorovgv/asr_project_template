@@ -15,6 +15,7 @@ def main(cfg: DictConfig) -> None:
     logger.info(asr_model)
 
     trainer = pl.Trainer(**cfg.trainer)
+
     trainer.fit(asr_model)
 
 
